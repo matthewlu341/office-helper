@@ -1,0 +1,5 @@
+***in ui:
+
+
+*** in main:
+ MainWindow.setWindowFlags(QtCore.Qt.WindowCloseButtonHint | QtCore.Qt.WindowMinimizeButtonHint)
