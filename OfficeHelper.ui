@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>614</width>
-    <height>530</height>
+    <width>611</width>
+    <height>533</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -45,7 +45,7 @@
       </rect>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -56,7 +56,7 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>601</width>
+         <width>891</width>
          <height>461</height>
         </rect>
        </property>
@@ -68,6 +68,7 @@
        </property>
        <property name="font">
         <font>
+         <family>Yu Gothic UI</family>
          <kerning>true</kerning>
         </font>
        </property>
@@ -75,7 +76,7 @@
         <cursorShape>ArrowCursor</cursorShape>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="tab_4">
         <property name="autoFillBackground">
@@ -97,19 +98,99 @@
           <property name="sizeConstraint">
            <enum>QLayout::SetNoConstraint</enum>
           </property>
+          <item row="0" column="1" colspan="2">
+           <widget class="QTextEdit" name="regexInput">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <family>Yu Gothic UI</family>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+              <kerning>true</kerning>
+             </font>
+            </property>
+            <property name="cursor" stdset="0">
+             <cursorShape>ArrowCursor</cursorShape>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QPushButton" name="directoryButton">
+            <property name="text">
+             <string>Directory</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_3">
+            <property name="font">
+             <font>
+              <family>Yu Gothic UI</family>
+              <pointsize>12</pointsize>
+              <kerning>true</kerning>
+             </font>
+            </property>
+            <property name="text">
+             <string>Choose the file types to search:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label">
+            <property name="font">
+             <font>
+              <family>Yu Gothic UI</family>
+              <pointsize>12</pointsize>
+              <kerning>true</kerning>
+             </font>
+            </property>
+            <property name="text">
+             <string>Type a regex you want to search for:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_2">
+            <property name="font">
+             <font>
+              <family>Yu Gothic UI</family>
+              <pointsize>12</pointsize>
+              <kerning>true</kerning>
+             </font>
+            </property>
+            <property name="text">
+             <string>Choose a file or directory to search:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
           <item row="2" column="1">
+           <widget class="QPushButton" name="fileButton">
+            <property name="text">
+             <string>File</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
            <layout class="QFormLayout" name="formLayout">
             <item row="0" column="0">
              <widget class="QCheckBox" name="pdfCheck">
               <property name="text">
                <string>.pdf</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QCheckBox" name="docCheck">
-              <property name="text">
-               <string>.doc</string>
               </property>
              </widget>
             </item>
@@ -127,106 +208,39 @@
               </property>
              </widget>
             </item>
+            <item row="0" column="1">
+             <widget class="QCheckBox" name="docCheck">
+              <property name="text">
+               <string>.doc</string>
+              </property>
+             </widget>
+            </item>
            </layout>
-          </item>
-          <item row="1" column="1">
-           <widget class="QPushButton" name="fileDialogButton">
-            <property name="text">
-             <string>...</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_3">
-            <property name="font">
-             <font>
-              <pointsize>12</pointsize>
-              <kerning>true</kerning>
-             </font>
-            </property>
-            <property name="text">
-             <string>Choose the file types to search:</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label">
-            <property name="font">
-             <font>
-              <pointsize>12</pointsize>
-              <kerning>true</kerning>
-             </font>
-            </property>
-            <property name="text">
-             <string>Type a regex you want to search for:</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_2">
-            <property name="font">
-             <font>
-              <pointsize>12</pointsize>
-              <kerning>true</kerning>
-             </font>
-            </property>
-            <property name="text">
-             <string>Choose a file or directory to search:</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QTextEdit" name="regexInput">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="font">
-             <font>
-              <pointsize>10</pointsize>
-              <weight>50</weight>
-              <bold>false</bold>
-              <kerning>true</kerning>
-             </font>
-            </property>
-            <property name="cursor" stdset="0">
-             <cursorShape>ArrowCursor</cursorShape>
-            </property>
-           </widget>
           </item>
          </layout>
         </widget>
         <widget class="QLabel" name="label_4">
          <property name="geometry">
           <rect>
-           <x>250</x>
+           <x>10</x>
            <y>220</y>
-           <width>141</width>
+           <width>581</width>
            <height>41</height>
           </rect>
          </property>
          <property name="font">
           <font>
+           <family>Yu Gothic UI</family>
            <pointsize>13</pointsize>
            <underline>true</underline>
+           <kerning>true</kerning>
           </font>
          </property>
          <property name="text">
-          <string>Your matches:</string>
+          <string>Your matches in:</string>
          </property>
         </widget>
-        <widget class="QTableWidget" name="tableWidget">
+        <widget class="QTableWidget" name="regexTable">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -247,16 +261,217 @@
          </column>
          <column>
           <property name="text">
-           <string>Line</string>
+           <string>Line/Page</string>
           </property>
          </column>
         </widget>
         <widget class="QPushButton" name="searchButton">
          <property name="geometry">
           <rect>
-           <x>240</x>
-           <y>170</y>
+           <x>170</x>
+           <y>160</y>
            <width>161</width>
+           <height>51</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <family>Yu Gothic UI</family>
+           <pointsize>12</pointsize>
+           <kerning>true</kerning>
+          </font>
+         </property>
+         <property name="text">
+          <string>Search</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="regexExportButton">
+         <property name="geometry">
+          <rect>
+           <x>340</x>
+           <y>170</y>
+           <width>131</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Export results to txt</string>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QWidget" name="tab_5">
+        <attribute name="title">
+         <string>Cleanup</string>
+        </attribute>
+        <widget class="QWidget" name="gridLayoutWidget_2">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>10</y>
+           <width>591</width>
+           <height>210</height>
+          </rect>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_6">
+            <property name="font">
+             <font>
+              <family>Yu Gothic UI</family>
+              <pointsize>12</pointsize>
+              <kerning>true</kerning>
+             </font>
+            </property>
+            <property name="text">
+             <string>Select extensions to delete:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QPushButton" name="cleanupDirectoryButton">
+            <property name="text">
+             <string>Directory</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_5">
+            <property name="font">
+             <font>
+              <family>Yu Gothic UI</family>
+              <pointsize>12</pointsize>
+              <kerning>true</kerning>
+             </font>
+            </property>
+            <property name="text">
+             <string>Choose a directory to clean up:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <layout class="QGridLayout" name="gridLayout_4">
+            <item row="0" column="0">
+             <widget class="QCheckBox" name="checkBox">
+              <property name="text">
+               <string>.docx</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QCheckBox" name="checkBox_3">
+              <property name="text">
+               <string>.pptx</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QCheckBox" name="checkBox_2">
+              <property name="text">
+               <string>.png</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QCheckBox" name="checkBox_4">
+              <property name="text">
+               <string>.xlsx</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QCheckBox" name="checkBox_5">
+              <property name="text">
+               <string>.pdf</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QCheckBox" name="checkBox_6">
+              <property name="text">
+               <string>.jpg</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_7">
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Other extensions to delete (separated by commas)</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QTextEdit" name="textEdit"/>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QLabel" name="label_8">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>270</y>
+           <width>581</width>
+           <height>41</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <family>Yu Gothic UI</family>
+           <pointsize>13</pointsize>
+           <underline>true</underline>
+           <kerning>true</kerning>
+          </font>
+         </property>
+         <property name="text">
+          <string>Deleting files in:</string>
+         </property>
+        </widget>
+        <widget class="QTableWidget" name="tableWidget_2">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>320</y>
+           <width>571</width>
+           <height>101</height>
+          </rect>
+         </property>
+         <column>
+          <property name="text">
+           <string>File</string>
+          </property>
+         </column>
+        </widget>
+        <widget class="QPushButton" name="pushButton_4">
+         <property name="geometry">
+          <rect>
+           <x>340</x>
+           <y>230</y>
+           <width>111</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Export log to txt</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="pushButton_5">
+         <property name="geometry">
+          <rect>
+           <x>200</x>
+           <y>220</y>
+           <width>111</width>
            <height>51</height>
           </rect>
          </property>
@@ -266,14 +481,9 @@
           </font>
          </property>
          <property name="text">
-          <string>Search</string>
+          <string>Delete</string>
          </property>
         </widget>
-       </widget>
-       <widget class="QWidget" name="tab_5">
-        <attribute name="title">
-         <string>Cleanup</string>
-        </attribute>
        </widget>
       </widget>
      </widget>
@@ -297,11 +507,282 @@
         <attribute name="title">
          <string>Encryption</string>
         </attribute>
+        <widget class="QWidget" name="gridLayoutWidget_4">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>10</y>
+           <width>591</width>
+           <height>191</height>
+          </rect>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_5">
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_11">
+            <property name="font">
+             <font>
+              <family>Yu Gothic UI</family>
+              <pointsize>12</pointsize>
+              <kerning>true</kerning>
+             </font>
+            </property>
+            <property name="text">
+             <string>Enter owner password:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QPushButton" name="cleanupDirectoryButton_2">
+            <property name="text">
+             <string>Browse</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_10">
+            <property name="font">
+             <font>
+              <family>Yu Gothic UI</family>
+              <pointsize>12</pointsize>
+              <kerning>true</kerning>
+             </font>
+            </property>
+            <property name="text">
+             <string>Enter user password:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_9">
+            <property name="font">
+             <font>
+              <family>Yu Gothic UI</family>
+              <pointsize>12</pointsize>
+              <kerning>true</kerning>
+             </font>
+            </property>
+            <property name="text">
+             <string>Choose a pdf file:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_12">
+            <property name="font">
+             <font>
+              <family>Yu Gothic UI</family>
+              <pointsize>12</pointsize>
+              <kerning>true</kerning>
+             </font>
+            </property>
+            <property name="text">
+             <string>Encryption bits:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QTextEdit" name="textEdit_2"/>
+          </item>
+          <item row="2" column="1">
+           <widget class="QTextEdit" name="textEdit_3"/>
+          </item>
+          <item row="3" column="1">
+           <widget class="QGroupBox" name="groupBox_2">
+            <property name="title">
+             <string/>
+            </property>
+            <widget class="QCheckBox" name="checkBox_7">
+             <property name="geometry">
+              <rect>
+               <x>60</x>
+               <y>0</y>
+               <width>81</width>
+               <height>20</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string>40</string>
+             </property>
+            </widget>
+            <widget class="QCheckBox" name="checkBox_8">
+             <property name="geometry">
+              <rect>
+               <x>210</x>
+               <y>0</y>
+               <width>81</width>
+               <height>20</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string>128</string>
+             </property>
+            </widget>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QLabel" name="label_13">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>210</y>
+           <width>581</width>
+           <height>41</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <family>Yu Gothic UI</family>
+           <pointsize>13</pointsize>
+           <underline>true</underline>
+           <kerning>true</kerning>
+          </font>
+         </property>
+         <property name="text">
+          <string>Encrypting PDF:</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_14">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>310</y>
+           <width>581</width>
+           <height>41</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <family>Yu Gothic UI</family>
+           <pointsize>13</pointsize>
+           <underline>false</underline>
+           <kerning>true</kerning>
+          </font>
+         </property>
+         <property name="text">
+          <string>Encryption complete!</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_15">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="geometry">
+          <rect>
+           <x>210</x>
+           <y>310</y>
+           <width>41</width>
+           <height>41</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="pixmap">
+          <pixmap>check.png</pixmap>
+         </property>
+         <property name="scaledContents">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="pushButton_6">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>250</y>
+           <width>111</width>
+           <height>51</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>12</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Encrypt</string>
+         </property>
+        </widget>
        </widget>
        <widget class="QWidget" name="tab_7">
         <attribute name="title">
          <string>Merging</string>
         </attribute>
+        <widget class="QWidget" name="gridLayoutWidget_5">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>591</width>
+           <height>121</height>
+          </rect>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_6">
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_17">
+            <property name="font">
+             <font>
+              <family>Yu Gothic UI</family>
+              <pointsize>12</pointsize>
+              <kerning>true</kerning>
+             </font>
+            </property>
+            <property name="text">
+             <string>Choose 2nd PDF file:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_18">
+            <property name="font">
+             <font>
+              <family>Yu Gothic UI</family>
+              <pointsize>12</pointsize>
+              <kerning>true</kerning>
+             </font>
+            </property>
+            <property name="text">
+             <string>Choose 1st PDF file:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QPushButton" name="cleanupDirectoryButton_4">
+            <property name="text">
+             <string>Browse</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QPushButton" name="cleanupDirectoryButton_3">
+            <property name="text">
+             <string>Browse</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </widget>
       </widget>
      </widget>
@@ -318,7 +799,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>614</width>
+     <width>611</width>
      <height>26</height>
     </rect>
    </property>
