@@ -1,0 +1,5 @@
+Must have a regex
+
+AND
+
+(filepath AND (file OR (folder and regchecked))

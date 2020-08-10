@@ -8,12 +8,15 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QFileDialog, QMessageBox, QTableWidgetItem
+import os, re
 
 
 class Ui_MainWindow(object):
     def __init__(self):
         self.filepath = ''
+        self.regex = ''
+        self.regExtensions = []
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -116,10 +119,7 @@ class Ui_MainWindow(object):
         self.formLayout.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.docxCheck)
         self.txtCheck = QtWidgets.QCheckBox(self.gridLayoutWidget)
         self.txtCheck.setObjectName("txtCheck")
-        self.formLayout.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.txtCheck)
-        self.docCheck = QtWidgets.QCheckBox(self.gridLayoutWidget)
-        self.docCheck.setObjectName("docCheck")
-        self.formLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.docCheck)
+        self.formLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.txtCheck)
         self.gridLayout.addLayout(self.formLayout, 4, 1, 1, 1)
         self.label_4 = QtWidgets.QLabel(self.tab_4)
         self.label_4.setGeometry(QtCore.QRect(10, 220, 581, 41))
@@ -139,8 +139,6 @@ class Ui_MainWindow(object):
         self.regexTable.setHorizontalHeaderItem(0, item)
         item = QtWidgets.QTableWidgetItem()
         self.regexTable.setHorizontalHeaderItem(1, item)
-        item = QtWidgets.QTableWidgetItem()
-        self.regexTable.setHorizontalHeaderItem(2, item)
         self.searchButton = QtWidgets.QPushButton(self.tab_4)
         self.searchButton.setGeometry(QtCore.QRect(170, 160, 161, 51))
         font = QtGui.QFont()
@@ -333,6 +331,7 @@ class Ui_MainWindow(object):
         self.label_15.setPixmap(QtGui.QPixmap("check.png"))
         self.label_15.setScaledContents(True)
         self.label_15.setObjectName("label_15")
+        self.label_15.hide()
         self.pushButton_6 = QtWidgets.QPushButton(self.tab_6)
         self.pushButton_6.setGeometry(QtCore.QRect(10, 220, 111, 51))
         font = QtGui.QFont()
@@ -428,6 +427,7 @@ class Ui_MainWindow(object):
         self.label_23.setPixmap(QtGui.QPixmap("check.png"))
         self.label_23.setScaledContents(True)
         self.label_23.setObjectName("label_23")
+        self.label_23.hide()
         self.tabWidget_3.addTab(self.tab_7, "")
         self.tabWidget.addTab(self.tab_2, "")
         self.tab_3 = QtWidgets.QWidget()
@@ -488,6 +488,7 @@ class Ui_MainWindow(object):
         self.label_28.setPixmap(QtGui.QPixmap("check.png"))
         self.label_28.setScaledContents(True)
         self.label_28.setObjectName("label_28")
+        self.label_28.hide()
         self.tabWidget.addTab(self.tab_3, "")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
@@ -506,16 +507,20 @@ class Ui_MainWindow(object):
 
         self.fileButton.clicked.connect(lambda: self.fileDialogHandler('f'))
         self.directoryButton.clicked.connect(lambda: self.fileDialogHandler('d'))
+        self.searchButton.clicked.connect(self.search)
 
     def fileDialogHandler(self, type):
         dialog = QFileDialog();
         if type == 'f':
             dialog.setFileMode(QFileDialog.AnyFile)
+            self.toggleReg(True)
+
         else:
             dialog.setFileMode(QFileDialog.Directory)
-        dialog.exec_()
-        self.filepath = dialog.selectedFiles()[0]
-        self.label_4.setText('Your matches in: ' + self.filepath)
+            self.toggleReg(False)
+        if dialog.exec_():
+            self.filepath = dialog.selectedFiles()[0]
+            self.label_4.setText('Your matches in: ' + self.getFileName(self.filepath))
 
     def getFileName(self, path):
         i = 0
@@ -523,6 +528,65 @@ class Ui_MainWindow(object):
             if c == '/':
                 return path[len(path) - i:]
             i += 1
+
+    def isRegChecked(self):
+        items = []
+        for i in range(self.formLayout.count()):
+            if self.formLayout.itemAt(i).widget().isChecked():
+                items.append(self.formLayout.itemAt(i).widget().text())
+        self.regExtensions = items
+        return self.pdfCheck.isChecked() or self.docxCheck.isChecked() or self.txtCheck.isChecked()
+
+    def toggleReg(self, bool):
+        self.pdfCheck.setDisabled(bool)
+        self.txtCheck.setDisabled(bool)
+        self.docxCheck.setDisabled(bool)
+
+    def search(self):
+        self.regexTable.setRowCount(0)
+        self.regex = self.regexInput.toPlainText()
+        if self.regex and (self.filepath and (not os.path.isdir(self.filepath)) or (os.path.isdir(self.filepath)
+                                                                                    and self.isRegChecked())):
+            searchRegex = re.compile(self.regex)
+            if os.path.isdir(self.filepath):  # if its a folder
+                os.chdir(self.filepath)
+                for file in os.listdir():  # iterate through every file
+                    if not os.path.isdir(file):
+                        for ext in self.regExtensions:
+                            if file.endswith(ext):
+                                self.searchFile(file, searchRegex)
+
+            else:  # if its a file
+                self.searchFile(self.filepath, searchRegex)
+
+        else:
+            self.showError('Please make sure the regex and filepath are nonempty, and that at least one file extension '
+                           'is selected.')
+
+    def searchFile(self, filename, regex):
+        if not filename.endswith('.pdf') and not filename.endswith('.docx') and not filename.endswith('.txt'):
+            self.showError('Invalid file type')
+        else:
+            if filename.endswith('.pdf'):
+                print('searching the pdf')
+            elif filename.endswith('.docx'):
+                print('searching the docx')
+            else:
+                txt = open(filename)
+                results = regex.findall(txt.read())
+                for res in results:
+                    rowPos = self.regexTable.rowCount()
+                    self.regexTable.insertRow(rowPos)
+                    self.regexTable.setItem(rowPos, 0, QTableWidgetItem(res))
+                    self.regexTable.setItem(rowPos, 1, QTableWidgetItem(filename))
+                txt.close()
+
+    def showError(self, msg):
+        err = QMessageBox()
+        err.setWindowTitle('Regex Search Error')
+        err.setText(msg)
+        err.setIcon(QMessageBox.Critical)
+        err.exec_()
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -536,14 +600,11 @@ class Ui_MainWindow(object):
         self.pdfCheck.setText(_translate("MainWindow", ".pdf"))
         self.docxCheck.setText(_translate("MainWindow", ".docx"))
         self.txtCheck.setText(_translate("MainWindow", ".txt"))
-        self.docCheck.setText(_translate("MainWindow", ".doc"))
         self.label_4.setText(_translate("MainWindow", "Your matches in:"))
         item = self.regexTable.horizontalHeaderItem(0)
         item.setText(_translate("MainWindow", "Text"))
         item = self.regexTable.horizontalHeaderItem(1)
         item.setText(_translate("MainWindow", "File"))
-        item = self.regexTable.horizontalHeaderItem(2)
-        item.setText(_translate("MainWindow", "Line/Page"))
         self.searchButton.setText(_translate("MainWindow", "Search"))
         self.regexExportButton.setText(_translate("MainWindow", "Export results to txt"))
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_4), _translate("MainWindow", "Regex Search"))
@@ -573,6 +634,7 @@ class Ui_MainWindow(object):
         self.checkBox_8.setText(_translate("MainWindow", "128"))
         self.label_13.setText(_translate("MainWindow", "Encrypting PDF:"))
         self.label_14.setText(_translate("MainWindow", "Encryption complete!"))
+        self.label_14.hide()
         self.pushButton_6.setText(_translate("MainWindow", "Encrypt"))
         self.tabWidget_3.setTabText(self.tabWidget_3.indexOf(self.tab_6), _translate("MainWindow", "Encryption"))
         self.label_16.setText(_translate("MainWindow", "Specify a page number to insert after (optional)"))
@@ -585,6 +647,7 @@ class Ui_MainWindow(object):
         self.label_21.setText(_translate("MainWindow", "with:"))
         self.pushButton_7.setText(_translate("MainWindow", "Merge"))
         self.label_22.setText(_translate("MainWindow", "Merging complete!"))
+        self.label_22.hide()
         self.tabWidget_3.setTabText(self.tabWidget_3.indexOf(self.tab_7), _translate("MainWindow", "Merging"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "PDFs"))
         self.label_24.setText(_translate("MainWindow", "Choose an Excel file:"))
@@ -593,6 +656,7 @@ class Ui_MainWindow(object):
         self.label_26.setText(_translate("MainWindow", "Converting:"))
         self.pushButton_8.setText(_translate("MainWindow", "Convert"))
         self.label_27.setText(_translate("MainWindow", "Conversion complete!"))
+        self.label_27.hide()
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3),
                                   _translate("MainWindow", "Excel to CSV Conversion"))
 
@@ -603,8 +667,6 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
-    print(ui.getFileName(
-        "C:/Users/matth/AppData/Local/Programs/Python/Python37-32/Scripts/Office Helper/officehelper.py"))
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
