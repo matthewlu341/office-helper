@@ -7,15 +7,21 @@
 # WARNING! All changes made in this file will be lost!
 
 
+import PyPDF2
+import docx2txt
+import datetime
+import os
+import re
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 from PyQt5.QtWidgets import QFileDialog, QMessageBox, QTableWidgetItem
-import os, re
 
 
 class Ui_MainWindow(object):
     def __init__(self):
         self.filepath = ''
         self.regex = ''
+        self.regRaw = ''
         self.regExtensions = []
 
     def setupUi(self, MainWindow):
@@ -133,7 +139,7 @@ class Ui_MainWindow(object):
         self.regexTable = QtWidgets.QTableWidget(self.tab_4)
         self.regexTable.setGeometry(QtCore.QRect(10, 270, 581, 151))
         self.regexTable.setObjectName("regexTable")
-        self.regexTable.setColumnCount(3)
+        self.regexTable.setColumnCount(2)
         self.regexTable.setRowCount(0)
         item = QtWidgets.QTableWidgetItem()
         self.regexTable.setHorizontalHeaderItem(0, item)
@@ -543,6 +549,7 @@ class Ui_MainWindow(object):
         self.docxCheck.setDisabled(bool)
 
     def search(self):
+        self.regRaw = ''
         self.regexTable.setRowCount(0)
         self.regex = self.regexInput.toPlainText()
         if self.regex and (self.filepath and (not os.path.isdir(self.filepath)) or (os.path.isdir(self.filepath)
@@ -551,10 +558,10 @@ class Ui_MainWindow(object):
             if os.path.isdir(self.filepath):  # if its a folder
                 os.chdir(self.filepath)
                 for file in os.listdir():  # iterate through every file
-                    if not os.path.isdir(file):
+                    if os.path.isfile(file):
                         for ext in self.regExtensions:
                             if file.endswith(ext):
-                                self.searchFile(file, searchRegex)
+                                self.searchFile(self.filepath + '/' + file, searchRegex)
 
             else:  # if its a file
                 self.searchFile(self.filepath, searchRegex)
@@ -563,22 +570,32 @@ class Ui_MainWindow(object):
             self.showError('Please make sure the regex and filepath are nonempty, and that at least one file extension '
                            'is selected.')
 
+    def updateTable(self, results, filename):
+        for res in results:
+            rowPos = self.regexTable.rowCount()
+            self.regexTable.insertRow(rowPos)
+            self.regexTable.setItem(rowPos, 0, QTableWidgetItem(res))
+            self.regRaw += (res + '\n')
+            self.regexTable.setItem(rowPos, 1, QTableWidgetItem(filename))
+
     def searchFile(self, filename, regex):
         if not filename.endswith('.pdf') and not filename.endswith('.docx') and not filename.endswith('.txt'):
             self.showError('Invalid file type')
         else:
             if filename.endswith('.pdf'):
-                print('searching the pdf')
+                reader = PyPDF2.PdfFileReader(open(filename, 'rb'))
+                for i in range(reader.getNumPages()):
+                    results = regex.findall(reader.getPage(i).extractText())
+                    self.updateTable(results, filename)
+
             elif filename.endswith('.docx'):
-                print('searching the docx')
+                docx = docx2txt.process(filename)
+                results = regex.findall(docx)
+                self.updateTable(results, filename)
             else:
                 txt = open(filename)
                 results = regex.findall(txt.read())
-                for res in results:
-                    rowPos = self.regexTable.rowCount()
-                    self.regexTable.insertRow(rowPos)
-                    self.regexTable.setItem(rowPos, 0, QTableWidgetItem(res))
-                    self.regexTable.setItem(rowPos, 1, QTableWidgetItem(filename))
+                self.updateTable(results, filename)
                 txt.close()
 
     def showError(self, msg):
@@ -587,6 +604,16 @@ class Ui_MainWindow(object):
         err.setText(msg)
         err.setIcon(QMessageBox.Critical)
         err.exec_()
+
+    def saveRaw(self):
+        rawText = ''
+        for i in range(self.regexTable.rowCount()):
+            rawText += self.regexTable.item(i, 0).text() + '\n'
+
+        print(os.path.abspath(os.path.curdir))
+        file = open('test.txt', 'w+')
+        file.write(rawText)
+        file.close()
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -603,10 +630,13 @@ class Ui_MainWindow(object):
         self.label_4.setText(_translate("MainWindow", "Your matches in:"))
         item = self.regexTable.horizontalHeaderItem(0)
         item.setText(_translate("MainWindow", "Text"))
+        self.regexTable.setColumnWidth(0, 200)
         item = self.regexTable.horizontalHeaderItem(1)
         item.setText(_translate("MainWindow", "File"))
+        self.regexTable.setColumnWidth(1, 378)
         self.searchButton.setText(_translate("MainWindow", "Search"))
-        self.regexExportButton.setText(_translate("MainWindow", "Export results to txt"))
+        self.regexExportButton.setText(_translate("MainWindow", "Export raw to txt"))
+        self.regexExportButton.clicked.connect(self.saveRaw)
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_4), _translate("MainWindow", "Regex Search"))
         self.label_6.setText(_translate("MainWindow", "Select extensions to delete:"))
         self.cleanupDirectoryButton.setText(_translate("MainWindow", "Directory"))
