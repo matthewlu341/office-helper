@@ -12,6 +12,8 @@ import docx2txt
 import datetime
 import os
 import re
+import sys 
+import subprocess
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 from PyQt5.QtWidgets import QFileDialog, QMessageBox, QTableWidgetItem
@@ -22,6 +24,7 @@ class Ui_MainWindow(object):
         self.filepath = ''
         self.regex = ''
         self.regRaw = ''
+        self.rootFolder = os.getcwd()
         self.regExtensions = []
 
     def setupUi(self, MainWindow):
@@ -606,14 +609,17 @@ class Ui_MainWindow(object):
         err.exec_()
 
     def saveRaw(self):
+        os.chdir(self.rootFolder)
         rawText = ''
         for i in range(self.regexTable.rowCount()):
             rawText += self.regexTable.item(i, 0).text() + '\n'
 
-        print(os.path.abspath(os.path.curdir))
-        file = open('test.txt', 'w+')
-        file.write(rawText)
-        file.close()
+        if self.rootFolder and rawText:
+            os.chdir(self.rootFolder)
+            file = open('RegexSearch.txt', 'w+')
+            file.write(rawText)
+            subprocess.Popen('explorer ' + self.rootFolder + '\\RegexSearch.txt')
+            file.close()
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
