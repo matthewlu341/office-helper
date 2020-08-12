@@ -12,7 +12,7 @@ import docx2txt
 import datetime
 import os
 import re
-import sys 
+import sys
 import subprocess
 from PyQt5 import QtCore, QtGui, QtWidgets
 
@@ -21,11 +21,15 @@ from PyQt5.QtWidgets import QFileDialog, QMessageBox, QTableWidgetItem
 
 class Ui_MainWindow(object):
     def __init__(self):
+        self.rootFolder = os.getcwd() # General variables
+
+        self.regex = ''  # Regex variables
         self.filepath = ''
-        self.regex = ''
         self.regRaw = ''
-        self.rootFolder = os.getcwd()
         self.regExtensions = []
+
+        self.cleanupPath = ''  # Cleanup variables
+        self.delExtensions = []
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -235,9 +239,6 @@ class Ui_MainWindow(object):
         self.tableWidget_2.setRowCount(0)
         item = QtWidgets.QTableWidgetItem()
         self.tableWidget_2.setHorizontalHeaderItem(0, item)
-        self.pushButton_4 = QtWidgets.QPushButton(self.tab_5)
-        self.pushButton_4.setGeometry(QtCore.QRect(340, 230, 111, 31))
-        self.pushButton_4.setObjectName("pushButton_4")
         self.pushButton_5 = QtWidgets.QPushButton(self.tab_5)
         self.pushButton_5.setGeometry(QtCore.QRect(200, 220, 111, 51))
         font = QtGui.QFont()
@@ -519,7 +520,7 @@ class Ui_MainWindow(object):
         self.searchButton.clicked.connect(self.search)
 
     def fileDialogHandler(self, type):
-        dialog = QFileDialog();
+        dialog = QFileDialog()
         if type == 'f':
             dialog.setFileMode(QFileDialog.AnyFile)
             self.toggleReg(True)
@@ -621,6 +622,54 @@ class Ui_MainWindow(object):
             subprocess.Popen('explorer ' + self.rootFolder + '\\RegexSearch.txt')
             file.close()
 
+    def cleanupFileDialog(self):
+        dialog = QFileDialog()
+        dialog.setFileMode(QFileDialog.Directory)
+        if dialog.exec_():
+            self.cleanupPath = dialog.selectedFiles()[0]
+            self.label_8.setText('Deleting files in: ' + self.getFileName(self.cleanupPath))
+
+    def delCheck(self):
+        items = []
+        oneChecked = False
+        for i in range(self.gridLayout_4.count()):
+            if self.gridLayout_4.itemAt(i).widget().isChecked():
+                oneChecked = True
+                items.append(self.gridLayout_4.itemAt(i).widget().text())
+
+        if self.textEdit.toPlainText():
+            oneChecked = True
+
+        self.delExtensions = (items + self.textEdit.toPlainText().split(','))
+        self.delExtensions = [ext for ext in self.delExtensions if ext]
+        return oneChecked
+
+    def delete(self):
+        self.tableWidget_2.setRowCount(0)
+        files = []
+        if self.delCheck():
+            os.chdir(self.cleanupPath)
+            for file in os.listdir():
+                if os.path.isfile(file):
+                    for ext in self.delExtensions:
+                        if file.endswith(ext):
+                            files.append(file)
+            for file in files:
+                if os.path.exists(file):
+                    os.remove(file)
+
+            self.updateDeleteTable(files)
+
+        else:
+            self.showError('Please make sure you selected a filepath and at least one file extension.')
+
+    def updateDeleteTable(self, filenames):
+        for file in filenames:
+            rowPos = self.tableWidget_2.rowCount()
+            self.tableWidget_2.insertRow(rowPos)
+            self.tableWidget_2.setItem(rowPos, 0, QTableWidgetItem(file))
+
+
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Office Helper"))
@@ -646,6 +695,7 @@ class Ui_MainWindow(object):
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_4), _translate("MainWindow", "Regex Search"))
         self.label_6.setText(_translate("MainWindow", "Select extensions to delete:"))
         self.cleanupDirectoryButton.setText(_translate("MainWindow", "Directory"))
+        self.cleanupDirectoryButton.clicked.connect(self.cleanupFileDialog)
         self.label_5.setText(_translate("MainWindow", "Choose a directory to clean up:"))
         self.checkBox.setText(_translate("MainWindow", ".docx"))
         self.checkBox_3.setText(_translate("MainWindow", ".pptx"))
@@ -656,9 +706,10 @@ class Ui_MainWindow(object):
         self.label_7.setText(_translate("MainWindow", "Other extensions to delete (separated by commas)"))
         self.label_8.setText(_translate("MainWindow", "Deleting files in:"))
         item = self.tableWidget_2.horizontalHeaderItem(0)
+        self.tableWidget_2.setColumnWidth(0,608)
         item.setText(_translate("MainWindow", "File"))
-        self.pushButton_4.setText(_translate("MainWindow", "Export log to txt"))
         self.pushButton_5.setText(_translate("MainWindow", "Delete"))
+        self.pushButton_5.clicked.connect(self.delete)
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_5), _translate("MainWindow", "Cleanup"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Files"))
         self.label_11.setText(_translate("MainWindow", "Enter owner password:"))
