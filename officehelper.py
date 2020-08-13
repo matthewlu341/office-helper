@@ -21,7 +21,7 @@ from PyQt5.QtWidgets import QFileDialog, QMessageBox, QTableWidgetItem
 
 class Ui_MainWindow(object):
     def __init__(self):
-        self.rootFolder = os.getcwd() # General variables
+        self.rootFolder = os.getcwd()  # General variables
 
         self.regex = ''  # Regex variables
         self.filepath = ''
@@ -30,6 +30,9 @@ class Ui_MainWindow(object):
 
         self.cleanupPath = ''  # Cleanup variables
         self.delExtensions = []
+
+        self.encryptionPath = ''  # encryption variables
+        self.bits = 0
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -299,11 +302,13 @@ class Ui_MainWindow(object):
         self.label_12.setAlignment(QtCore.Qt.AlignCenter)
         self.label_12.setObjectName("label_12")
         self.gridLayout_5.addWidget(self.label_12, 3, 0, 1, 1)
-        self.textEdit_2 = QtWidgets.QTextEdit(self.gridLayoutWidget_4)
+        self.textEdit_2 = QtWidgets.QLineEdit(self.gridLayoutWidget_4)
         self.textEdit_2.setObjectName("textEdit_2")
+        self.textEdit_2.setEchoMode(QtWidgets.QLineEdit.Password)
         self.gridLayout_5.addWidget(self.textEdit_2, 1, 1, 1, 1)
-        self.textEdit_3 = QtWidgets.QTextEdit(self.gridLayoutWidget_4)
+        self.textEdit_3 = QtWidgets.QLineEdit(self.gridLayoutWidget_4)
         self.textEdit_3.setObjectName("textEdit_3")
+        self.textEdit_3.setEchoMode(QtWidgets.QLineEdit.Password)
         self.gridLayout_5.addWidget(self.textEdit_3, 2, 1, 1, 1)
         self.groupBox_2 = QtWidgets.QGroupBox(self.gridLayoutWidget_4)
         self.groupBox_2.setTitle("")
@@ -311,9 +316,11 @@ class Ui_MainWindow(object):
         self.checkBox_7 = QtWidgets.QCheckBox(self.groupBox_2)
         self.checkBox_7.setGeometry(QtCore.QRect(60, 0, 81, 20))
         self.checkBox_7.setObjectName("checkBox_7")
+        self.checkBox_7.clicked.connect(lambda: self.switchBits(40))
         self.checkBox_8 = QtWidgets.QCheckBox(self.groupBox_2)
         self.checkBox_8.setGeometry(QtCore.QRect(210, 0, 81, 20))
         self.checkBox_8.setObjectName("checkBox_8")
+        self.checkBox_8.clicked.connect(lambda: self.switchBits(128))
         self.gridLayout_5.addWidget(self.groupBox_2, 3, 1, 1, 1)
         self.label_13 = QtWidgets.QLabel(self.tab_6)
         self.label_13.setGeometry(QtCore.QRect(10, 170, 581, 41))
@@ -348,6 +355,7 @@ class Ui_MainWindow(object):
         font.setPointSize(12)
         self.pushButton_6.setFont(font)
         self.pushButton_6.setObjectName("pushButton_6")
+        self.pushButton_6.clicked.connect(self.encrypt)
         self.tabWidget_3.addTab(self.tab_6, "")
         self.tab_7 = QtWidgets.QWidget()
         self.tab_7.setObjectName("tab_7")
@@ -529,6 +537,7 @@ class Ui_MainWindow(object):
             dialog.setFileMode(QFileDialog.Directory)
             self.toggleReg(False)
         if dialog.exec_():
+            self.regexTable.setRowCount(0)
             self.filepath = dialog.selectedFiles()[0]
             self.label_4.setText('Your matches in: ' + self.getFileName(self.filepath))
 
@@ -554,7 +563,6 @@ class Ui_MainWindow(object):
 
     def search(self):
         self.regRaw = ''
-        self.regexTable.setRowCount(0)
         self.regex = self.regexInput.toPlainText()
         if self.regex and (self.filepath and (not os.path.isdir(self.filepath)) or (os.path.isdir(self.filepath)
                                                                                     and self.isRegChecked())):
@@ -626,6 +634,7 @@ class Ui_MainWindow(object):
         dialog = QFileDialog()
         dialog.setFileMode(QFileDialog.Directory)
         if dialog.exec_():
+            self.tableWidget_2.setRowCount(0)
             self.cleanupPath = dialog.selectedFiles()[0]
             self.label_8.setText('Deleting files in: ' + self.getFileName(self.cleanupPath))
 
@@ -645,9 +654,8 @@ class Ui_MainWindow(object):
         return oneChecked
 
     def delete(self):
-        self.tableWidget_2.setRowCount(0)
         files = []
-        if self.delCheck():
+        if self.delCheck() and self.cleanupPath:
             os.chdir(self.cleanupPath)
             for file in os.listdir():
                 if os.path.isfile(file):
@@ -669,6 +677,45 @@ class Ui_MainWindow(object):
             self.tableWidget_2.insertRow(rowPos)
             self.tableWidget_2.setItem(rowPos, 0, QTableWidgetItem(file))
 
+    def encryptionDialog(self):
+        dialog = QFileDialog()
+        dialog.setFileMode(QFileDialog.AnyFile)
+        if dialog.exec_():
+            self.label_14.hide()
+            self.label_15.hide()
+            self.encryptionPath = dialog.selectedFiles()[0]
+            self.label_13.setText('Encrypting PDF: ' + self.getFileName(self.encryptionPath))
+
+    def switchBits(self, bit):
+        self.bits = bit
+        if bit == 40:
+            if self.checkBox_8.isChecked():
+                self.checkBox_8.setChecked(False)
+                self.checkBox_7.setChecked(True)
+        else:
+            if self.checkBox_7.isChecked():
+                self.checkBox_7.setChecked(False)
+                self.checkBox_8.setChecked(True)
+
+    def encrypt(self):
+        os.chdir(self.encryptionPath[:-(len(self.getFileName(self.encryptionPath))+1)])
+        if self.bits > 0 and self.encryptionPath.endswith('.pdf'):
+            inputPdf = PyPDF2.PdfFileReader(open(self.encryptionPath, 'rb'))
+            writer = PyPDF2.PdfFileWriter()
+            writer.appendPagesFromReader(inputPdf)
+            if self.textEdit_2.text() == self.textEdit_3.text() and self.textEdit_2.text() and self.textEdit_3.text():
+                if self.bits == 40:
+                    writer.encrypt(self.textEdit_2.text(), self.textEdit_2.text(), False)
+                else:
+                    writer.encrypt(self.textEdit_2.text(), self.textEdit_2.text(), True)
+
+                writer.write(open(self.getFileName(self.encryptionPath), 'wb'))
+                self.label_14.show()
+                self.label_15.show()
+            else:
+                self.showError('Passwords do not match.')
+        else:
+            self.showError('Please make sure bits and a PDF file are selected.')
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -706,15 +753,16 @@ class Ui_MainWindow(object):
         self.label_7.setText(_translate("MainWindow", "Other extensions to delete (separated by commas)"))
         self.label_8.setText(_translate("MainWindow", "Deleting files in:"))
         item = self.tableWidget_2.horizontalHeaderItem(0)
-        self.tableWidget_2.setColumnWidth(0,608)
+        self.tableWidget_2.setColumnWidth(0, 608)
         item.setText(_translate("MainWindow", "File"))
         self.pushButton_5.setText(_translate("MainWindow", "Delete"))
         self.pushButton_5.clicked.connect(self.delete)
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_5), _translate("MainWindow", "Cleanup"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Files"))
-        self.label_11.setText(_translate("MainWindow", "Enter owner password:"))
+        self.label_11.setText(_translate("MainWindow", "Confirm password:"))
         self.cleanupDirectoryButton_2.setText(_translate("MainWindow", "Browse"))
-        self.label_10.setText(_translate("MainWindow", "Enter user password:"))
+        self.cleanupDirectoryButton_2.clicked.connect(self.encryptionDialog)
+        self.label_10.setText(_translate("MainWindow", "Enter a password:"))
         self.label_9.setText(_translate("MainWindow", "Choose a pdf file:"))
         self.label_12.setText(_translate("MainWindow", "Encryption bits:"))
         self.checkBox_7.setText(_translate("MainWindow", "40"))
