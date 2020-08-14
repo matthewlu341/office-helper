@@ -34,6 +34,10 @@ class Ui_MainWindow(object):
         self.encryptionPath = ''  # encryption variables
         self.bits = 0
 
+        self.pdfPath1 = ''  # merging variables
+        self.pdfPath2 = ''
+        self.pageNum = -1
+
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(608, 533)
@@ -371,8 +375,9 @@ class Ui_MainWindow(object):
         self.label_16.setFont(font)
         self.label_16.setObjectName("label_16")
         self.gridLayout_6.addWidget(self.label_16, 2, 0, 1, 1)
-        self.textEdit_4 = QtWidgets.QTextEdit(self.gridLayoutWidget_5)
+        self.textEdit_4 = QtWidgets.QLineEdit(self.gridLayoutWidget_5)
         self.textEdit_4.setObjectName("textEdit_4")
+        self.textEdit_4.setValidator(QtGui.QIntValidator())
         self.gridLayout_6.addWidget(self.textEdit_4, 2, 2, 1, 1)
         self.label_18 = QtWidgets.QLabel(self.gridLayoutWidget_5)
         font = QtGui.QFont()
@@ -385,9 +390,11 @@ class Ui_MainWindow(object):
         self.gridLayout_6.addWidget(self.label_18, 0, 0, 1, 1)
         self.cleanupDirectoryButton_3 = QtWidgets.QPushButton(self.gridLayoutWidget_5)
         self.cleanupDirectoryButton_3.setObjectName("cleanupDirectoryButton_3")
+        self.cleanupDirectoryButton_3.clicked.connect(lambda: self.mergeFileHandler(1))
         self.gridLayout_6.addWidget(self.cleanupDirectoryButton_3, 0, 2, 1, 1)
         self.cleanupDirectoryButton_4 = QtWidgets.QPushButton(self.gridLayoutWidget_5)
         self.cleanupDirectoryButton_4.setObjectName("cleanupDirectoryButton_4")
+        self.cleanupDirectoryButton_4.clicked.connect(lambda: self.mergeFileHandler(2))
         self.gridLayout_6.addWidget(self.cleanupDirectoryButton_4, 1, 2, 1, 1)
         self.label_17 = QtWidgets.QLabel(self.gridLayoutWidget_5)
         font = QtGui.QFont()
@@ -429,6 +436,7 @@ class Ui_MainWindow(object):
         self.pushButton_7.setFont(font)
         self.pushButton_7.setObjectName("pushButton_7")
         self.label_22 = QtWidgets.QLabel(self.tab_7)
+        self.pushButton_7.clicked.connect(self.merge)
         self.label_22.setEnabled(True)
         self.label_22.setGeometry(QtCore.QRect(10, 300, 581, 41))
         font = QtGui.QFont()
@@ -547,6 +555,9 @@ class Ui_MainWindow(object):
             if c == '/':
                 return path[len(path) - i:]
             i += 1
+
+    def getFolderName(self, path):
+        return path[:-(len(self.getFileName(path)) + 1)]
 
     def isRegChecked(self):
         items = []
@@ -698,24 +709,75 @@ class Ui_MainWindow(object):
                 self.checkBox_8.setChecked(True)
 
     def encrypt(self):
-        os.chdir(self.encryptionPath[:-(len(self.getFileName(self.encryptionPath))+1)])
         if self.bits > 0 and self.encryptionPath.endswith('.pdf'):
+            os.chdir(self.getFolderName(self.encryptionPath))
             inputPdf = PyPDF2.PdfFileReader(open(self.encryptionPath, 'rb'))
-            writer = PyPDF2.PdfFileWriter()
-            writer.appendPagesFromReader(inputPdf)
-            if self.textEdit_2.text() == self.textEdit_3.text() and self.textEdit_2.text() and self.textEdit_3.text():
-                if self.bits == 40:
-                    writer.encrypt(self.textEdit_2.text(), self.textEdit_2.text(), False)
-                else:
-                    writer.encrypt(self.textEdit_2.text(), self.textEdit_2.text(), True)
+            if not inputPdf.isEncrypted:
+                writer = PyPDF2.PdfFileWriter()
+                writer.appendPagesFromReader(inputPdf)
+                if self.textEdit_2.text() == self.textEdit_3.text() and self.textEdit_2.text() and self.textEdit_3.text():
+                    if self.bits == 40:
+                        writer.encrypt(self.textEdit_2.text(), self.textEdit_2.text(), False)
+                    else:
+                        writer.encrypt(self.textEdit_2.text(), self.textEdit_2.text(), True)
 
-                writer.write(open(self.getFileName(self.encryptionPath), 'wb'))
-                self.label_14.show()
-                self.label_15.show()
+                    newFile = open('Encrypted.pdf', 'wb')
+                    writer.write(newFile)
+                    self.label_14.show()
+                    self.label_15.show()
+                    newFile.close()
+                else:
+                    self.showError('Passwords do not match.')
+
             else:
-                self.showError('Passwords do not match.')
+                self.showError('PDF is already encrypted')
         else:
             self.showError('Please make sure bits and a PDF file are selected.')
+
+    def mergeFileHandler(self, num):
+        dialog = QFileDialog()
+        dialog.setFileMode(QFileDialog.AnyFile)
+        if dialog.exec_():
+            self.label_22.hide()
+            self.label_23.hide()
+            if num == 1:
+                self.pdfPath1 = dialog.selectedFiles()[0]
+                self.label_20.setText('Merging: ' + self.getFileName(self.pdfPath1))
+                self.label_20.adjustSize()
+            else:
+                self.pdfPath2 = dialog.selectedFiles()[0]
+                self.label_21.setText('With: ' + self.getFileName(self.pdfPath2))
+                self.label_21.adjustSize()
+
+    def merge(self):
+        os.chdir(self.rootFolder)
+        if self.pdfPath1.endswith('.pdf') and self.pdfPath2.endswith('.pdf') and self.textEdit_5.toPlainText().endswith(
+                '.pdf'):
+
+            merger = PyPDF2.PdfFileMerger()
+            readerPdf = open(self.pdfPath1, 'rb')
+            reader = PyPDF2.PdfFileReader(readerPdf)
+
+            pageNum = -1
+            if self.textEdit_4.text():
+                pageNum = int(self.textEdit_4.text())
+                if 0 < pageNum < reader.getNumPages():
+                    merger.append(self.pdfPath1)
+                    merger.merge(pageNum, self.pdfPath2)
+                else:
+                    self.showError('Invalid page number')
+
+            else:
+                merger.append(self.pdfPath1)
+                merger.append(self.pdfPath2)
+
+            merger.write(self.textEdit_5.toPlainText())
+            merger.close()
+            readerPdf.close()
+            self.label_22.show()
+            self.label_23.show()
+        else:
+            self.showError('Please make sure you have 2 PDF files selected and an output in PDF format.')
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
