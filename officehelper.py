@@ -754,6 +754,10 @@ class Ui_MainWindow(object):
         if self.pdfPath1.endswith('.pdf') and self.pdfPath2.endswith('.pdf') and self.textEdit_5.toPlainText().endswith(
                 '.pdf'):
 
+            if self.textEdit_5.toPlainText() in os.listdir():
+                self.showError('File already exists')
+                return 0
+
             merger = PyPDF2.PdfFileMerger()
             readerPdf = open(self.pdfPath1, 'rb')
             reader = PyPDF2.PdfFileReader(readerPdf)
@@ -761,11 +765,12 @@ class Ui_MainWindow(object):
             pageNum = -1
             if self.textEdit_4.text():
                 pageNum = int(self.textEdit_4.text())
-                if 0 < pageNum < reader.getNumPages():
+                if -1 < pageNum < reader.getNumPages():
                     merger.append(self.pdfPath1)
                     merger.merge(pageNum, self.pdfPath2)
                 else:
                     self.showError('Invalid page number')
+                    return 0
 
             else:
                 merger.append(self.pdfPath1)
