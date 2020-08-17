@@ -14,7 +14,9 @@ import os
 import re
 import sys
 import subprocess
+import xlrd
 from PyQt5 import QtCore, QtGui, QtWidgets
+import pandas
 
 from PyQt5.QtWidgets import QFileDialog, QMessageBox, QTableWidgetItem
 
@@ -37,6 +39,9 @@ class Ui_MainWindow(object):
         self.pdfPath1 = ''  # merging variables
         self.pdfPath2 = ''
         self.pageNum = -1
+
+        self.xlPath = '' #excel variables
+        self.csvName = ''
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -661,7 +666,7 @@ class Ui_MainWindow(object):
             oneChecked = True
 
         self.delExtensions = (items + self.textEdit.toPlainText().split(','))
-        self.delExtensions = [ext for ext in self.delExtensions if ext]
+        self.delExtensions = [ext.strip() for ext in self.delExtensions if ext]
         return oneChecked
 
     def delete(self):
@@ -784,6 +789,26 @@ class Ui_MainWindow(object):
         else:
             self.showError('Please make sure you have 2 PDF files selected and an output in PDF format.')
 
+    def xlDialog(self):
+        dialog = QFileDialog()
+        dialog.setFileMode(QFileDialog.AnyFile)
+        if dialog.exec_():
+            self.label_27.hide()
+            self.label_28.hide()
+            self.xlPath = dialog.selectedFiles()[0]
+            self.label_26.setText('Converting: ' + self.getFileName(self.xlPath))
+            self.label_26.adjustSize()
+
+    def convert(self):
+        if self.textEdit_6.toPlainText().endswith('.csv') and self.xlPath.endswith('.xlsx'):
+            read_file = pandas.read_excel(self.xlPath)
+            read_file.to_csv(self.getFolderName(self.xlPath)+ '/' + self.textEdit_6.toPlainText(), index=None, header=True)
+            self.label_27.show()
+            self.label_28.show()
+
+        else:
+            self.showError('Please make sure your selected file is xlsx and output file is csv.')
+
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Office Helper"))
@@ -854,9 +879,11 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "PDFs"))
         self.label_24.setText(_translate("MainWindow", "Choose an Excel file:"))
         self.pushButton.setText(_translate("MainWindow", "Browse"))
+        self.pushButton.clicked.connect(self.xlDialog)
         self.label_25.setText(_translate("MainWindow", "Output file name:"))
         self.label_26.setText(_translate("MainWindow", "Converting:"))
         self.pushButton_8.setText(_translate("MainWindow", "Convert"))
+        self.pushButton_8.clicked.connect(self.convert)
         self.label_27.setText(_translate("MainWindow", "Conversion complete!"))
         self.label_27.hide()
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3),
